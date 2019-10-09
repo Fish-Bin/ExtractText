@@ -9,6 +9,19 @@ public class StringUtils {
     public static int count = 0;
 
     /**
+     * 把字符串中的空格替换为_
+     */
+    public static String formatStr(String str) {
+        str = str.toLowerCase();
+        String[] split = str.split(" ");
+        if (split.length < 5) {
+            return str.replace(" ", "_");
+        }
+        count++;
+        return count + "";
+    }
+
+    /**
      * 将string按需要格式化,前面加缩进符,后面加换行符
      *
      * @param tabNum    缩进量
@@ -61,16 +74,6 @@ public class StringUtils {
         return sb.toString();
     }
 
-    public static String formatStr(String str) {
-        str = str.toLowerCase();
-        String[] split = str.split(" ");
-        if (split.length < 5) {
-            return str.replace(" ", "_");
-        }
-        count++;
-        return count + "";
-    }
-
     /**
      * 将已有id转换wi变量值
      */
@@ -99,6 +102,5 @@ public class StringUtils {
         String result = builder.toString().replaceAll("[^0-9a-zA-Z]", "");
         return result.substring(0, 1).toLowerCase() + result.substring(1, result.length());
     }
-
 
 }

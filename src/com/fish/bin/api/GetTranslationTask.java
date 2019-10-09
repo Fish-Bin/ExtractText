@@ -52,12 +52,12 @@ public class GetTranslationTask extends Task.Backgroundable {
     public void run(@NotNull ProgressIndicator indicator) {
         List<String> result = null;
         try {
-            String query = "";
+            StringBuilder query = new StringBuilder();
             for (String source : sources) {
-                query += (URLEncoder.encode(source, "UTF-8"));
-                query += "%0A";//换行
+                query.append(URLEncoder.encode(source, "UTF-8"));
+                query.append("%0A");//换行
             }
-            String url = String.format(BASE_TRANSLATION_URL, query);
+            String url = String.format(BASE_TRANSLATION_URL, query.toString());
             System.out.println("url=" + url);
             String jsonResult = HttpUtils.doHttpGet(url);
             System.out.println("http:" + jsonResult);
@@ -75,7 +75,7 @@ public class GetTranslationTask extends Task.Backgroundable {
         try {
             JsonArray lJsonArray = new JsonParser().parse(source).getAsJsonArray();
             JsonArray lJsonArrayStrings = lJsonArray.get(0).getAsJsonArray();
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
             int size = lJsonArrayStrings.size();
             for (int i = 0; i < size; i++) {
                 JsonArray lJsonArrayOneString = lJsonArrayStrings.get(i).getAsJsonArray();

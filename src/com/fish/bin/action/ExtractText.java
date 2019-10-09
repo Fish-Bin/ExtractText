@@ -1,6 +1,4 @@
 package com.fish.bin.action;
-
-import com.fish.bin.api.CallBack;
 import com.fish.bin.api.GetTranslationTask;
 import com.fish.bin.bean.DataBean;
 import com.fish.bin.utils.StringUtils;
@@ -10,7 +8,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -22,16 +19,14 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.IdeFrame;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.XmlRecursiveElementVisitor;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.ui.EditorTextField;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.awt.RelativePoint;
-
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,12 +52,10 @@ public class ExtractText extends AnAction {
         project = e.getData(PlatformDataKeys.PROJECT);
         //当前文件
         PsiFile psiFile = e.getData(PlatformDataKeys.PSI_FILE);
-        PsiElement psiElement = e.getData(PlatformDataKeys.PSI_ELEMENT);
-
         //当前光标位置
         editor = e.getData(PlatformDataKeys.EDITOR);
         if (project != null && psiFile != null) {
-            if (psiFile.getParent().getName().equals("layout") && psiFile.getName().contains("xml")) { //选中layout中的布局文件
+            if (psiFile.getParent() != null && psiFile.getParent().getName().equals("layout") && psiFile.getName().contains("xml")) { //选中layout中的布局文件
                 layoutName = psiFile.getName().split("\\.")[0];
                 handLayout(layoutName);
             } else if (editor != null) { //选中java类的布局文件
@@ -150,20 +143,17 @@ public class ExtractText extends AnAction {
      * 翻译
      */
     private void translate(PsiFile file, List<String> sources) {
-        new GetTranslationTask(project, "翻译中", sources, new CallBack() {
-            @Override
-            public void onBack(List<String> result) {
-                if (result != null) {
-                    for (int i = 0; i < dataBeans.size(); i++) {
-                        DataBean dataBean = dataBeans.get(i);
-                        dataBean.setKey(dataBean.getKey() + StringUtils.formatStr(result.get(i)));
-                    }
-                    handResult(file);
-                } else {
-                    showDialog("翻译异常", 2);
+        new GetTranslationTask(project, "翻译中", sources, result -> {
+            if (result != null) {
+                for (int i = 0; i < dataBeans.size(); i++) {
+                    DataBean dataBean = dataBeans.get(i);
+                    dataBean.setKey(dataBean.getKey() + StringUtils.formatStr(result.get(i)));
                 }
+                handResult(file);
+            } else {
+                showDialog("翻译异常", 2);
             }
-        }).setCancelText("Translation has been canceled").queue();
+        }).setCancelText("Translation Has Been Canceled").queue();
     }
 
 
@@ -174,11 +164,13 @@ public class ExtractText extends AnAction {
         Runnable runnable = () -> {
             VirtualFile virtualFile = file.getVirtualFile();
             Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
-            String text = document.getText();
-            for (DataBean attributeValue : dataBeans) {
-                text = text.replace("\"" + attributeValue.getValue() + "\"", "\"" + "@string/" + attributeValue.getKey() + "\"");
+            if(document!=null){
+                String text = document.getText();
+                for (DataBean attributeValue : dataBeans) {
+                    text = text.replace("\"" + attributeValue.getValue() + "\"", "\"" + "@string/" + attributeValue.getKey() + "\"");
+                }
+                document.setText(text);
             }
-            document.setText(text);
         };
         WriteCommandAction.runWriteCommandAction(project, runnable);
     }
@@ -193,9 +185,11 @@ public class ExtractText extends AnAction {
             if (virtualFile != null) {
                 Runnable runnable = () -> {
                     Document document = FileDocumentManager.getInstance().getDocument(virtualFile);
-                    int lineCount = document.getLineCount();
-                    int lineNumber = document.getLineStartOffset(lineCount - 1);
-                    document.insertString(lineNumber, content);
+                    if(document!=null){
+                        int lineCount = document.getLineCount();
+                        int lineNumber = document.getLineStartOffset(lineCount - 1);
+                        document.insertString(lineNumber, content);
+                    }
                 };
                 WriteCommandAction.runWriteCommandAction(project, runnable);
             } else {
@@ -220,7 +214,7 @@ public class ExtractText extends AnAction {
      */
     private String getShowContent(List<DataBean> attributeValues) {
         StringBuilder block = new StringBuilder();
-        block.append("<!--################ " + layoutName + " start ################-->\n");
+        block.append("<!--################ ").append(layoutName).append(" start ################-->\n");
         for (DataBean dataBean : attributeValues) {
             block.append("<string name=\"")
                     .append(dataBean.getKey())
@@ -228,7 +222,7 @@ public class ExtractText extends AnAction {
                     .append(dataBean.getValue())
                     .append("</string>\n");
         }
-        block.append("<!--################ " + layoutName + " end ################-->\n");
+        block.append("<!--################ ").append(layoutName).append(" end ################-->\n");
         return block.toString();
     }
 
@@ -238,7 +232,7 @@ public class ExtractText extends AnAction {
     private void showDialog(final String result, final int time) {
         ApplicationManager.getApplication().invokeLater(() -> {
             JBPopupFactory factory = JBPopupFactory.getInstance();
-            Balloon balloon = factory.createHtmlTextBalloonBuilder(result, null, Color.gray, null)
+            Balloon balloon = factory.createHtmlTextBalloonBuilder(result, null, JBColor.GRAY, null)
                     .setFadeoutTime(time * 1000)
                     .createBalloon();
             if (editor == null) {

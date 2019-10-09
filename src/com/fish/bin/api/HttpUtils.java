@@ -26,6 +26,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class HttpUtils {
 
     public static String doHttpGet(String url) {
         try {
-            HttpClient httpClient = new DefaultHttpClient();
+            HttpClient httpClient = HttpClientBuilder.create().build();
             HttpGet httpGet = new HttpGet(url);
             HttpResponse resp = httpClient.execute(httpGet);
 
@@ -44,47 +45,6 @@ public class HttpUtils {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
-        }
-        return null;
-    }
-
-    public static String doHttpGet(String url, Header[] headers) {
-        try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpGet httpGet = new HttpGet(url);
-            httpGet.setHeaders(headers);
-            HttpResponse resp = httpClient.execute(httpGet);
-
-            return StreamUtil.readText(resp.getEntity().getContent(), "UTF-8");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static String doHttpPost(String url, List<NameValuePair> params) {
-        try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(url);
-            httpPost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-            HttpResponse resp = httpClient.execute(httpPost);
-            return StreamUtil.readText(resp.getEntity().getContent(), "UTF-8");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static String doHttpPost(String url, String xmlBody, Header[] headers) {
-        try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(url);
-            httpPost.setHeaders(headers);
-            httpPost.setEntity(new StringEntity(xmlBody, "UTF-8"));
-            HttpResponse resp = httpClient.execute(httpPost);
-            return StreamUtil.readText(resp.getEntity().getContent(), "UTF-8");
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return null;
     }
