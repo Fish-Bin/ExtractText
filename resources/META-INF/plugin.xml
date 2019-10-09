@@ -1,0 +1,25 @@
+<idea-plugin>
+  <id>com.fish.bin.extract.text</id>
+  <name>Extract Text</name>
+  <version>1.0</version>
+  <vendor email="474174309@qq.com"   url="https://github.com/Fish-Bin/ExtractText" >Liu Bin</vendor>
+
+  <description><![CDATA[
+       A plugin for extract text.<br>
+       Automatically reads hardcoded text from XML into resource files.<br>
+    ]]></description>
+
+  <idea-version since-build="173.0"/>
+
+  <extensions defaultExtensionNs="com.intellij">
+  </extensions>
+
+  <actions>
+    <action id="com.fish.bin.extract" class="com.fish.bin.action.ExtractText" text="ExtractText"
+            description="extract text">
+      <add-to-group group-id="CodeMenu" anchor="first"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt B"/>
+    </action>
+  </actions>
+
+</idea-plugin>
