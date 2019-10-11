@@ -2,7 +2,9 @@
 A plugin for extract text.
 ## 一、引言
 新进一家公司，给的第一个任务便是做硬编码优化，要做的事情大概是，把xml中写死的dp、sp、color、文字等，全部映射到dimen.xml和strings.xml中，初步分析，对于dp、sp、color这些并不难，利用正则很快就能替换完，可是字符串又该如何替换呢？难道要一个个布局文件找，并且一个个改么，作为程序员，自然不愿意做这种体力活，如是今天的主角ExtractText登场了，废话不多说，看动画效果。
-![动图](https://github.com/Fish-Bin/ExtractyText/blob/master/image/plugin.png)
+
+![动图](https://github.com/Fish-Bin/ExtractText/blob/master/src/com/fish/bin/image/plugin.gif)
+
 ## 二、使用方法
 
  1. 在studio中安装插件，搜索ExtractText即可，安装方法自行查阅，也可去JetBrains直接下载插件的jar,文末已给出下载地址。
